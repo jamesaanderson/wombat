@@ -1,0 +1,3 @@
+{:ns wombat.migrations.import-words
+ :up-fn migrate-up
+ :down-fn nil}
