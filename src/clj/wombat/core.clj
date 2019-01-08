@@ -13,7 +13,8 @@
             [buddy.auth :refer [authenticated?]]
             [buddy.auth.backends :as backends]
             [buddy.auth.middleware :refer [wrap-authentication]]
-            [environ.core :refer [env]]))
+            [environ.core :refer [env]]
+            [clj-time.core :as t]))
 
 (def secret (env "JWT_SECRET"))
 (def auth-backend (backends/jws {:secret secret}))
@@ -22,13 +23,16 @@
   (-> (response {:message "Unauthorized request."})
       (assoc :status 401)))
 
-(defn jwt-payload [user]
+(defn claims [user]
   (-> user
-      (select-keys [:id :email :username])))
+      (select-keys [:id :email :username])
+      (assoc :iat (t/now))
+      (assoc :exp
+             (t/plus (t/now) (t/days 1)))))
 
 (defn jwt-response [user]
   (response
-    {:token (jwt/sign (jwt-payload user) secret)}))
+    {:token (jwt/sign (claims user) secret)}))
 
 (defn signup
   [request]
