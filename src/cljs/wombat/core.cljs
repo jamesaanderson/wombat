@@ -1,22 +1,32 @@
 (ns wombat.core
   (:require [reagent.core :as reagent]
-            [re-frame.core :as rf]))
+            [re-frame.core :as rf]
+            [wombat.events]
+            [wombat.subs]
+            [wombat.views :as views]))
 
-(defn login-form
+(defn- wrap-auth
+  [f]
+  (let [token (rf/subscribe [:token])]
+    (fn []
+      (if @token
+        [f token]
+        [rf/dispatch [:set-active-panel :login]]))))
+
+(defn- page
+  [panel]
+  (case panel
+    :login [views/login-form]
+    :signup [views/signup-form]
+    :rooms [wrap-auth views/rooms-list]
+    [views/login-form]))
+
+(defn app
   []
-  [:div
-   [:h3 "login"]
-   [:form
-    [:div
-      [:input {:type "text"
-               :placeholder "email"}]]
-    [:div
-      [:input {:type "password"
-               :placeholder "password"}]]
-    [:div
-      [:input {:type "submit"
-               :value "login"}]]]])
+  (let [active (rf/subscribe [:active-panel])]
+    (fn []
+      [page @active])))
 
 (defn ^:export main []
-  (reagent/render [login-form]
+  (reagent/render [app]
                   (js/document.getElementById "app")))

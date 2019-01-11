@@ -23,14 +23,14 @@
   (-> (response {:message "Unauthorized request."})
       (assoc :status 401)))
 
-(defn claims [user]
+(defn- claims [user]
   (-> user
       (select-keys [:id :email :username])
       (assoc :iat (t/now))
       (assoc :exp
              (t/plus (t/now) (t/days 1)))))
 
-(defn jwt-response [user]
+(defn- jwt-response [user]
   (response
     {:token (jwt/sign (claims user) secret)}))
 
