@@ -1,0 +1,67 @@
+@font-face {
+  font-family: "OfficeCodePro-Bold";
+  src: url("OfficeCodePro-Bold.eot");
+  src: url("OfficeCodePro-Bold.ttf");
+}
+
+body {
+  color: #393e46;
+  font-family: 'Montserrat', sans-serif;
+  margin: 0;
+}
+
+#content {
+  margin: 25px;
+}
+
+#navbar {
+  background-color: #0da8b0;
+  color: white;
+  padding-left: 20px;
+  padding-right: 10px;
+  border-bottom: 3px solid #2097a2;
+}
+
+#navbar #icon {
+  height: 5em;
+  vertical-align: middle;
+}
+
+#navbar #title {
+  font-family: "OfficeCodePro-Bold";
+  font-size: 25pt;
+  color: white;
+  vertical-align: middle;
+  text-decoration: none;
+}
+
+#navbar ul {
+  list-style: none;
+  float: right;
+  margin: 0;
+}
+
+#navbar li {
+  display: inline-block;
+  line-height: 5em;
+  margin-right: 10px;
+}
+
+#navbar a {
+  color: white;
+  text-decoration: none;
+}
+
+#navbar a:hover {
+  text-decoration: underline;
+}
+
+.error {
+  color: #fc3c3c;
+}
+
+input {
+  padding: .375rem .75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}

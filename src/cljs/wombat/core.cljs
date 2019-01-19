@@ -2,31 +2,13 @@
   (:require [reagent.core :as reagent]
             [re-frame.core :as rf]
             [wombat.events]
-            [wombat.subs]
-            [wombat.views :as views]))
+            [wombat.views :as views]
+            [wombat.routes :as routes]))
 
-(defn- wrap-auth
-  [f]
-  (let [token (rf/subscribe [:token])]
-    (fn []
-      (if @token
-        [f token]
-        [rf/dispatch [:set-active-panel :login]]))))
-
-(defn- page
-  [panel]
-  (case panel
-    :login [views/login-form]
-    :signup [views/signup-form]
-    :rooms [wrap-auth views/rooms-list]
-    [views/login-form]))
-
-(defn app
-  []
-  (let [active (rf/subscribe [:active-panel])]
-    (fn []
-      [page @active])))
+(defn mount-components []
+  (reagent/render [views/app] (js/document.getElementById "app")))
 
 (defn ^:export main []
-  (reagent/render [app]
-                  (js/document.getElementById "app")))
+  (routes/start!)
+  (rf/dispatch-sync [:initialize-db])
+  (mount-components))

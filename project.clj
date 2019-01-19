@@ -19,7 +19,8 @@
                  [re-frame "0.10.6"]
                  [cljs-ajax "0.8.0"]
                  [day8.re-frame/http-fx "0.1.6"]
-                 [clj-commons/secretary "1.2.4"]
+                 [bidi "2.1.5"]
+                 [kibu/pushy "0.3.8"]
                  [clj-time "0.15.0"]]
   :plugins [[migratus-lein "0.7.0"]
             [lein-environ "1.1.0"]
@@ -40,7 +41,7 @@
                         :source-paths ["src/cljs"]
                         :figwheel true
                         :compiler {:main "wombat.core"
-                                   :asset-path "js/compiled/out"
+                                   :asset-path "/js/compiled/out"
                                    :output-dir "resources/public/js/compiled/out"
                                    :output-to "resources/public/js/compiled/app.js"}}]}
   :source-paths ["src/clj" "src/cljs"])

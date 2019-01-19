@@ -102,7 +102,13 @@
 
 (defn threads
   [request]
-  "")
+  (if (authenticated? request)
+    (let [room-id (-> request
+                      (get-in [:route-params :id])
+                      (Integer/parseInt))]
+      (response 
+        (threads/get-by-room-id room-id)))
+    unauthorized-response))
 
 (defroutes api-routes
   (context "/api" []
@@ -120,9 +126,10 @@
            (POST "/rooms/:id" [] create-thread)))
 
 (defroutes app-routes
-  (GET "/" [] (-> (resource-response "index.html" {:root "public"})
-                  (content-type "text/html; charset=utf-8")))
-  (route/resources "/"))
+  (route/resources "/")
+  ;; send all routes to SPA
+  (route/not-found (-> (resource-response "index.html" {:root "public"})
+                       (content-type "text/html; charset=utf-8"))))
 
 (def app
   (routes (-> api-routes
@@ -133,10 +140,8 @@
               (wrap-routes wrap-json-response))
           app-routes))
 
-(defn -main
-  [port & args]
+(defn -main [port & args]
   (jetty/run-jetty app {:port (Integer/parseInt port)}))
 
-(defn -dev-main
-  [& args]
+(defn -dev-main [& args]
   (jetty/run-jetty (wrap-reload #'app) {:port 1337}))

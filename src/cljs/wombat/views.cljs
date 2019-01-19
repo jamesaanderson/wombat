@@ -2,21 +2,32 @@
   (:require [reagent.core :as reagent]
             [re-frame.core :as rf]
             [wombat.events]
-            [wombat.subs]))
+            [wombat.subs]
+            [wombat.routes :as routes]))
 
-(defn error-view
-  []
-  (let [error-message (rf/subscribe [:error-message])]
+(defn error-view []
+  (let [message (rf/subscribe [:message])]
     (fn []
-      (when @error-message
-        [:p @error-message]))))
+      (when @message
+        [:p.error @message]))))
 
-(defn login-form
-  []
+(defn input [input-type s id placeholder]
+  [:input {:type input-type
+           :placeholder placeholder
+           :value (get @s id)
+           :on-change #(swap! s assoc id (-> % .-target .-value))}])
+
+(defn text-input [s id placeholder]
+  [input "text" s id placeholder])
+
+(defn password-input [s id placeholder]
+  [input "password" s id placeholder])
+
+(defn login-form []
   (let [s (reagent/atom {:email "" :password ""})]
     (fn []
       [:div
-       [:h3 "login"]
+       [:h3 "Login"]
 
        [error-view]
 
@@ -24,53 +35,96 @@
                             (.preventDefault e)
                             (rf/dispatch [:login @s]))}
         [:div
-          [:input {:type "text"
-                   :placeholder "email"
-                   :value (:email @s)
-                   :on-change #(swap! s assoc :email (-> % .-target .-value))}]]
+         [text-input s :email "Email"]]
         [:div
-         [:input {:type "password"
-                  :placeholder "password"
-                  :value (:password @s)
-                  :on-change #(swap! s assoc :password (-> % .-target .-value))}]]
+         [password-input s :password "Password"]]
         [:div
          [:input {:type "submit"
-                  :value "login"}]]]
+                  :value "Login"}]]]
 
        [:div
-        [:a {:href "#"
-             :on-click (fn [e]
-                         (.preventDefault e)
-                         (rf/dispatch [:set-active-panel :signup]))}
-          "sign up"]]])))
+        [:a {:href (routes/path-for :signup)} "New? Sign Up"]]])))
 
-(defn signup-form
-  []
+(defn signup-form []
   (let [s (reagent/atom {:email "" :password ""})]
     (fn []
       [:div
-       [:h3 "sign up"]
+       [:h3 "Sign Up"]
 
        [:form {:on-submit (fn [e]
                             (.preventDefault e)
                             (rf/dispatch [:signup @s]))}
         [:div
-         [:input {:type "text"
-                  :placeholder "email"
-                  :value (:email @s)
-                  :on-change #(swap! s assoc :email (-> % .-target .-value))}]]
+         [text-input s :email "Email"]]
         [:div
-         [:input {:type "password"
-                  :placeholder "password"
-                  :value (:password @s)
-                  :on-change #(swap! s assoc :password (-> % .-target .-value))}]]
+         [password-input s :password "Password"]]
         [:div
          [:input {:type "submit"
-                  :value "sign up"}]]]])))
+                  :value "Sign Up"}]]]])))
 
-(defn rooms-list
-  [token]
+(defn rooms-list []
+  (rf/dispatch [:get-rooms])
   (let [rooms (rf/subscribe [:rooms])]
-    (fn [token]
-      (for [r @rooms]
-        [:p (:name r)]))))
+    (fn []
+      [:div
+       (for [r @rooms]
+         [:a
+          {:key (:room_id r)
+           :href (routes/path-for :threads :room-id (:room_id r))}
+          (:name r)])])))
+
+(defn threads-list
+  [room-id]
+  (rf/dispatch [:get-threads room-id])
+  (let [threads (rf/subscribe [:threads])]
+    (fn [room-id]
+      [:div
+       (for [t @threads]
+         [:div {:key (:id t)}
+          [:h2 (:subject t)]
+          [:p (:body t)]])])))
+
+(defn wrap-auth
+  [view]
+  (let [token (rf/subscribe [:token])]
+    (fn []
+      (if @token
+        view
+        [login-form]))))
+
+(defn page
+  [{page :page params :params}]
+  (case page
+    :login [login-form]
+    :signup [signup-form]
+    :rooms (wrap-auth [rooms-list])
+    :threads (wrap-auth
+               [threads-list (:room-id params)])
+    [login-form]))
+
+(defn navbar []
+  (let [token (rf/subscribe [:token])]
+    (fn []
+      [:div#navbar
+       [:a#icon {:href "/"}
+        [:img#icon {:src "/img/icon.svg"}]]
+       [:a#title {:href "/"} "Wombat"]
+       (if @token
+         [:ul
+          [:li
+           [:a {:href "#" :on-click (fn [e]
+                                      (.preventDefault e)
+                                      (rf/dispatch [:logout]))} "Logout"]]]
+         [:ul
+          [:li
+           [:a {:href (routes/path-for :login)} "Login"]]
+          [:li
+           [:a {:href (routes/path-for :signup)} "Sign Up"]]])])))
+
+(defn app []
+  (let [active (rf/subscribe [:active-page])]
+    (fn []
+      [:div
+       [navbar]
+       [:div#content
+         [page @active]]])))
