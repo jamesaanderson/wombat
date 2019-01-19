@@ -1,7 +1,7 @@
 @font-face {
-  font-family: "OfficeCodePro-Bold";
-  src: url("OfficeCodePro-Bold.eot");
-  src: url("OfficeCodePro-Bold.ttf");
+  font-family: 'OfficeCodePro-Bold';
+  src: url('OfficeCodePro-Bold.eot');
+  src: url('OfficeCodePro-Bold.ttf');
 }
 
 body {
@@ -28,7 +28,7 @@ body {
 }
 
 #navbar #title {
-  font-family: "OfficeCodePro-Bold";
+  font-family: 'OfficeCodePro-Bold';
   font-size: 25pt;
   color: white;
   vertical-align: middle;

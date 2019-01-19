@@ -84,23 +84,16 @@
           [:h2 (:subject t)]
           [:p (:body t)]])])))
 
-(defn wrap-auth
-  [view]
-  (let [token (rf/subscribe [:token])]
-    (fn []
-      (if @token
-        view
-        [login-form]))))
-
 (defn page
   [{page :page params :params}]
-  (case page
-    :login [login-form]
-    :signup [signup-form]
-    :rooms (wrap-auth [rooms-list])
-    :threads (wrap-auth
-               [threads-list (:room-id params)])
-    [login-form]))
+  (let [token (rf/subscribe [:token])]
+    (fn [{page :page params :params}]
+      (case page
+        :login [login-form]
+        :signup [signup-form]
+        :rooms (if @token [rooms-list] [login-form])
+        :threads (if @token [threads-list (:room-id params)] [login-form])
+        [login-form]))))
 
 (defn navbar []
   (let [token (rf/subscribe [:token])]
