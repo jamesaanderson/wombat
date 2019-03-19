@@ -5,6 +5,8 @@
             [wombat.views :as views]
             [wombat.routes :as routes]))
 
+(enable-console-print!)
+
 (defn mount-components []
   (reagent/render [views/app] (js/document.getElementById "app")))
 

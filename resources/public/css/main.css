@@ -10,8 +10,21 @@ body {
   margin: 0;
 }
 
+a {
+  color: #0c5ee8;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+time {
+  color: #888;
+}
+
 #content {
-  margin: 25px;
+  margin: 10px 40px;
 }
 
 #navbar {
@@ -19,17 +32,21 @@ body {
   color: white;
   padding-left: 20px;
   padding-right: 10px;
-  border-bottom: 3px solid #2097a2;
+  border-bottom: .2em solid #2097a2;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
 }
 
 #navbar #icon {
-  height: 5em;
+  height: 4em;
   vertical-align: middle;
 }
 
 #navbar #title {
   font-family: 'OfficeCodePro-Bold';
-  font-size: 25pt;
+  font-size: 1.5em;
   color: white;
   vertical-align: middle;
   text-decoration: none;
@@ -43,24 +60,165 @@ body {
 
 #navbar li {
   display: inline-block;
-  line-height: 5em;
+  line-height: 4em;
   margin-right: 10px;
 }
 
 #navbar a {
   color: white;
-  text-decoration: none;
-}
-
-#navbar a:hover {
-  text-decoration: underline;
+  font-weight: 500;
 }
 
 .error {
   color: #fc3c3c;
 }
 
-input {
+.box {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.box-header, .box-footer {
+  background-color: #f1f1f1;
+  padding: 8px 15px;
+}
+
+.thread>.box-header {
+  background-color: white;
+}
+
+.box-header {
+  border-bottom: 1px solid #ddd;
+}
+
+.box-footer {
+  border-top: 1px solid #ddd;
+}
+
+.box-title {
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.thread>.box-header .box-title, .thread>.box-header .username, .thread>.box-header .box-subtitle {
+  font-size: 14px;
+}
+
+.thread>.box-header .username {
+  margin-left: 5px;
+}
+
+.box form input[type=text], .box form textarea {
+  width: 100%;
+  border: 0;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 15px;
+  font-size: 1rem;
+}
+
+.box form input[type=text] {
+  border-bottom: 1px solid #ddd;
+  font-weight: 300;
+}
+
+.box form textarea {
+  font-weight: 300;
+  resize: none;
+}
+
+.box .box-content {
+  font-size: 14px;
+  padding: 8px 15px;
+}
+
+.btn {
+  background-color: #0da8b0;
+  border-color: transparent;
+  color: white;
+  border-radius: 2px;
+  font-size: 12px;
+  padding: 8px 15px;
+  font-weight: 700;
+  cursor: pointer;
+  border-bottom: 3px solid #2097a2;
+}
+
+.btn:hover {
+  background-color: #0c9fa7;
+}
+
+#flex-wrap {
+  display: flex;
+}
+
+#rooms-list {
+  background-color: #393e46;
+  padding-top: 10px;
+  width: 15%;
+  position: fixed;
+  top: 4.2em;
+  left: 0;
+  bottom: 0;
+  overflow: auto;
+}
+
+#rooms-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#rooms-list a {
+  color: #ccc;
+  font-weight: 700;
+  display: block;
+  padding: 8px 15px;
+}
+
+#rooms-list a:hover, #rooms-list .current {
+  color: #f1f1f1;
+  background-color: #41464d;
+  text-decoration: none;
+}
+
+#room, #feed, #create-room-form, #thread {
+  padding: 10px 20px;
+  position: fixed;
+  top: 4.2em;
+  bottom: 0;
+  left: 15%;
+  right: 0;
+  overflow: auto;
+}
+
+.recent-reply {
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+.recent-reply .username {
+  font-weight: 600;
+  margin-right: 5px;
+}
+
+.recent-reply p {
+  margin: 0;
+}
+
+.reply-textarea {
+  width: 100%;
+  border: 1px solid #ddd;
+  resize: none;
+}
+
+#login-form, #signup-form {
+  padding: 10px 20px;
+}
+
+#login-form input, #signup-form input, #create-room-form input {
   padding: .375rem .75rem;
   font-size: 1rem;
   line-height: 1.5;

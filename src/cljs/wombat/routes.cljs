@@ -7,11 +7,13 @@
   ["/" {"login" :login
         "signup" :signup
         "rooms" {"" :rooms
-                 ["/" :room-id] :threads}}])
+                 "/new" :new-room
+                 ["/" :room-id] {"" :room
+                                 ["/threads/" :thread-id] :thread}}}])
 
 (def parse-url (partial bidi/match-route routes))
 
-(defn- dispatch-route [{handler :handler route-params :route-params}]
+(defn- dispatch-route [{:keys [handler route-params]}]
   (rf/dispatch [:set-active-page {:page handler :params route-params}]))
 
 (def history

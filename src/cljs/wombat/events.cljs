@@ -42,7 +42,9 @@
 (rf/reg-event-db
   :set-active-page
   (fn [db [_ page]]
-    (assoc db :active-page page)))
+    (-> db
+        (assoc :active-page page)
+        (assoc :message nil))))
 
 (rf/reg-event-db
   :notify-error
@@ -89,6 +91,25 @@
      :set-url [:login]}))
 
 (rf/reg-event-fx
+  :create-room
+  (fn [{db :db} [_ fields]]
+    {:http-xhrio {:uri "/api/rooms"
+                  :method :post
+                  :headers (auth-headers db)
+                  :params fields
+                  :timeout 5000
+                  :format (ajax/json-request-format)
+                  :response-format (ajax/json-response-format {:keywords? true})
+                  :on-success [:create-room-success]
+                  :on-failure []}}))
+
+(rf/reg-event-fx
+  :create-room-success
+  (fn [{db :db} [_ result]]
+    {:db (update-in db [:user :rooms] conj result)
+     :set-url [:room :room-id (:id result)]}))
+
+(rf/reg-event-fx
   :get-rooms
   (fn [{db :db} _]
     {:http-xhrio {:uri "/api/rooms"
@@ -105,6 +126,24 @@
     (assoc-in db [:user :rooms] result)))
 
 (rf/reg-event-fx
+  :create-thread
+  (fn [{db :db} [_ room-id fields]]
+    {:http-xhrio {:uri (str "/api/rooms/" room-id)
+                  :method :post
+                  :headers (auth-headers db)
+                  :params fields
+                  :timeout 5000
+                  :format (ajax/json-request-format)
+                  :response-format (ajax/json-response-format {:keywords? true})
+                  :on-success [:create-thread-success]
+                  :on-failure [:notify-error]}}))
+
+(rf/reg-event-db
+  :create-thread-success
+  (fn [db [_ result]]
+    (update db :threads conj result)))
+
+(rf/reg-event-fx
   :get-threads
   (fn [{db :db} [_ room-id]]
     {:http-xhrio {:uri (str "/api/rooms/" room-id)
@@ -119,3 +158,80 @@
   :get-threads-success
   (fn [db [_ result]]
     (assoc db :threads result)))
+
+(rf/reg-event-fx
+  :get-feed
+  (fn [{db :db} [_]]
+    {:http-xhrio {:uri (str "/api/feed")
+                  :method :get
+                  :headers (auth-headers db)
+                  :timeout 8000
+                  :response-format (ajax/json-response-format {:keywords? true})
+                  :on-success [:get-feed-success]
+                  :on-failure []}}))
+
+(rf/reg-event-db
+  :get-feed-success
+  (fn [db [_ result]]
+    (assoc db :feed result)))
+
+(rf/reg-event-fx
+  :get-recent-replies
+  (fn [{db :db} [_ thread-id]]
+    {:http-xhrio {:uri (str "/api/threads/" thread-id "/replies?limit=5")
+                  :method :get
+                  :headers (auth-headers db)
+                  :timeout 8000
+                  :response-format (ajax/json-response-format {:keywords? true})
+                  :on-success [:get-replies-success thread-id]
+                  :on-failure []}}))
+
+(rf/reg-event-fx
+  :get-replies
+  (fn [{db :db} [_ thread-id]]
+    {:http-xhrio {:uri (str "/api/threads/" thread-id "/replies")
+                  :method :get
+                  :headers (auth-headers db)
+                  :timeout 8000
+                  :response-format (ajax/json-response-format {:keywords? true})
+                  :on-success [:get-replies-success thread-id]
+                  :on-failure []}}))
+
+(rf/reg-event-db
+  :get-replies-success
+  (fn [db [_ thread-id result]]
+    (assoc-in db [:replies thread-id] result)))
+
+(rf/reg-event-fx
+  :create-reply
+  (fn [{db :db} [_ thread-id fields]]
+    {:http-xhrio {:uri (str "/api/threads/" thread-id)
+                  :method :post
+                  :headers (auth-headers db)
+                  :params (assoc fields :parent-id nil)
+                  :timeout 5000
+                  :format (ajax/json-request-format)
+                  :response-format (ajax/json-response-format {:keywords? true})
+                  :on-success [:create-reply-success thread-id]
+                  :on-failure []}}))
+
+(rf/reg-event-db
+  :create-reply-success
+  (fn [db [_ thread-id result]]
+    (update-in db [:replies thread-id] conj result)))
+
+(rf/reg-event-fx
+  :get-thread
+  (fn [{db :db} [_ thread-id]]
+    {:http-xhrio {:uri (str "/api/threads/" thread-id)
+                  :method :get
+                  :headers (auth-headers db)
+                  :timeout 8000
+                  :response-format (ajax/json-response-format {:keywords? true})
+                  :on-success [:get-thread-success]
+                  :on-failure []}}))
+
+(rf/reg-event-db
+  :get-thread-success
+  (fn [db [_ result]]
+    (assoc db :thread result)))

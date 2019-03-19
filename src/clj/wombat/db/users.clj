@@ -2,7 +2,6 @@
   (:require [wombat.db.core :as db]
             [wombat.db.names :as names]
             [wombat.db.adjectives :as adjectives]
-            [wombat.util :as util]
             [buddy.hashers :as hashers]
             [jkkramer.verily :as v]))
 
@@ -27,22 +26,24 @@
 (defn update-username! [m]
   (db/update-user-username! db/spec m))
 
+(defn get-by-email [email]
+  (db/get-user-by-email db/spec {:email email}))
+
 (defn create!
   [email password]
   (let [encrypted (hashers/derive password)
         errors (v/validate {:email email :password password} validations)
         valid? (or (empty? errors) (nil? errors))]
     (if valid?
-      (try
-        (let [user (db/create-user! db/spec {:email email :password encrypted})
-              id (:id user)]
-          (assoc (update-username! {:id id :username (generate-username id)}) :success? true))
-        (catch Exception e
-          {:success? false :message "Invalid user."}))
-      {:success? false :message (util/format-validation-errors errors)})))
-
-(defn get-by-email [email]
-  (db/get-user-by-email db/spec {:email email}))
+      (if (get-by-email email)
+        {:success? false :message "A user already exists with the given email."}
+        (try
+          (let [user (db/create-user! db/spec {:email email :password encrypted})
+                id (:id user)]
+            (assoc (update-username! {:id id :username (generate-username id)}) :success? true))
+          (catch Exception _
+            {:success? false :message "Error creating user."})))
+      {:success? false :message errors})))
 
 (defn validate
   [email password]

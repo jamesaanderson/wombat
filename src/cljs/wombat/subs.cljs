@@ -25,3 +25,18 @@
   :threads
   (fn [db]
     (:threads db)))
+
+(rf/reg-sub
+  :replies
+  (fn [db [_ thread-id]]
+    (get-in db [:replies thread-id])))
+
+(rf/reg-sub
+  :thread
+  (fn [db]
+    (:thread db)))
+
+(rf/reg-sub
+  :feed
+  (fn [db]
+    (:feed db)))
